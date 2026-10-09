@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#236a42"><meta name="description" content="Offline-capable crop water-stress dashboard with manual readings, simulation, RGB analysis and plots.">
+  <title>Smart Crop Water Stress — V3</title>
+  <link rel="manifest" href="./manifest.json"><link rel="icon" type="image/png" href="./icon-192.png">
+<style>
+:root{--pine:#236a42;--dark:#143a2b;--bg:#f1f6f2;--paper:#fff;--muted:#607367;--stroke:#d9e4dc;--gold:#dd9c26;--red:#d64a43;--blue:#3665ab;--violet:#704ead}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font:16px/1.45 system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:#1c2d22;background:var(--bg)}
+header{background:linear-gradient(115deg,#155536,#2f7850);color:#fff;padding:20px 18px 25px}
+.wrap{max-width:1050px;margin:auto}header .top{display:flex;gap:12px;align-items:flex-start;justify-content:space-between}h1{font-size:clamp(23px,5vw,31px);margin:0;font-weight:800;letter-spacing:-.6px}h2{font-size:21px;margin:0 0 10px}h3{font-size:17px;margin:12px 0 6px}
+header p{margin:2px 0 0;color:#e5f4e9;font-size:14px}.pill{border:1px solid #ffffff80;border-radius:20px;padding:3px 9px;font-size:12px;display:inline-block;margin-top:8px}
+main{max-width:1050px;margin:0 auto;padding:13px 12px 38px}.card{background:var(--paper);border:1px solid var(--stroke);border-radius:18px;padding:clamp(14px,3vw,23px);margin:0 0 14px;box-shadow:0 3px 13px #183a220b}
+.card-head{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-bottom:12px;flex-wrap:wrap}.caption{color:var(--muted);font-size:13px;margin:6px 0 10px}.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.kpi{border:1px solid var(--stroke);border-radius:13px;padding:14px 9px;text-align:center;background:#fafdff}.kpi small{display:block;color:#526c5b;font-size:13px}.kpi strong{font-size:clamp(22px,6vw,32px);display:block;margin-top:4px;line-height:1.3;font-variant-numeric:tabular-nums}.kpi .unit{font-size:13px;color:var(--muted)}
+.result{border-radius:13px;padding:13px 15px;margin-top:13px;text-align:center;font-size:21px;font-weight:800;background:#ebf1ed;color:#57705e}.result.normal{background:#e6f6eb;color:#21673c}.result.early{background:#fff6df;color:#976b0c}.result.moderate{background:#fff0d9;color:#a45b05}.result.severe{background:#ffe7e6;color:#b63030}
+.score{text-align:center;font-size:14px;margin:8px 0;color:#425c4c}.score strong{font-size:18px}#advice{padding:9px 12px;background:#f5f8f6;border-radius:10px;margin-top:10px;font-size:14px;min-height:38px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px}label{display:block;font-size:13px;color:#47604f;font-weight:600;margin-bottom:4px}input[type=number],input[type=url],input[type=text]{display:block;width:100%;padding:11px 12px;min-height:45px;border:1px solid #cbd8cf;border-radius:11px;font-size:17px;outline-color:#388857;color:#1b2e20;background:white;direction:ltr;text-align:start;font-variant-numeric:tabular-nums}
+button{font-family:inherit;border:0;border-radius:11px;background:var(--pine);color:#fff;font-size:15px;cursor:pointer;font-weight:750;padding:11px 15px;min-height:45px}button:focus-visible{outline:3px solid #74b998;outline-offset:2px}.secondary{background:#fff;color:var(--pine);border:1px solid var(--pine)}button:disabled{opacity:.55;cursor:default}.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}.btns button{flex:1 1 155px}.error{color:#b63030;font-size:13px;margin:7px 0 0;min-height:20px}.notice{background:#fff8e7;border:1px solid #ebdcaf;color:#6c511a;border-radius:10px;padding:11px;font-size:13px;margin-top:12px}.good{background:#ecf8ef;border-color:#add8b9;color:#275739}.plot{display:block;width:100%;height:300px;border:1px solid var(--stroke);background:#fff;border-radius:12px;touch-action:pan-y}.legend{display:flex;flex-wrap:wrap;gap:10px 17px;font-size:12px;color:#4a5b50;margin:10px 0 0}.dot{display:inline-block;width:11px;height:11px;border-radius:50%;vertical-align:-1px;margin-inline-end:4px}.chart-card h3{margin-top:0}.chart-card{margin-top:14px}.chart-flex{display:grid;gap:12px}
+#imagePreview{display:none;max-width:100%;max-height:300px;object-fit:contain;border-radius:10px;margin-top:12px;border:1px solid var(--stroke)}.image-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:12px}.image-stats div{background:#f2f7f3;border-radius:9px;text-align:center;padding:8px 4px}.image-stats small{display:block;font-size:11px}.image-stats strong{font-size:16px}
+.table-wrap{overflow:auto;max-height:300px;border:1px solid var(--stroke);border-radius:10px}table{width:100%;border-collapse:collapse;min-width:570px;font-size:13px}th,td{padding:9px 10px;border-bottom:1px solid #e4ebe5;text-align:start;white-space:nowrap}th{position:sticky;top:0;background:#ecf3ee}.hint{font-size:12px;color:var(--muted)}.file-picker{display:block;width:100%;padding:9px;border:1px dashed #8ba998;border-radius:11px;background:#f6faf7}#simDay{font-weight:750;color:#24573d}
+@media(min-width:760px){.kpis{grid-template-columns:repeat(5,1fr)}.chart-flex{grid-template-columns:1fr 1fr}.chart-flex .card{margin-bottom:0}.form-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}@media(max-width:480px){.plot{height:256px}.kpi{padding:10px 5px}.image-stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="top"><div><h1 data-t="title">Smart Crop Water Stress</h1><p data-t="subtitle">Drone + ground-sensor monitor • Version 3</p><span class="pill" data-t="rule">Research prototype • rule-based model</span></div><button id="langBtn" class="secondary" type="button" style="min-width:100px;background:white" aria-label="Switch language">العربية</button></div></div></header>
+<main>
+<section class="card" aria-live="polite">
+  <div class="card-head"><h2 data-t="dashboard">Water-stress dashboard</h2><span class="caption" id="sourceBadge">No measurements yet</span></div>
+  <div class="kpis">
+    <div class="kpi"><small data-t="soil">Soil moisture</small><strong id="kMoist">—</strong><span class="unit">%</span></div>
+    <div class="kpi"><small data-t="green">RGB green fraction</small><strong id="kGreen">—</strong><span class="unit">0–1</span></div>
+    <div class="kpi"><small data-t="temp">Temperature</small><strong id="kTemp">—</strong><span class="unit">°C</span></div>
+    <div class="kpi"><small data-t="humidity">Air humidity</small><strong id="kHum">—</strong><span class="unit">%</span></div>
+    <div class="kpi"><small>VARI</small><strong id="kVari">—</strong><span class="unit" data-t="variIndex">RGB vegetation index</span></div>
+  </div>
+  <div class="result" id="statusText" role="status">Waiting for analysis</div><div class="score"><span data-t="score">Indicative stress score</span>: <strong id="riskScore">—</strong></div>
+  <div id="advice" data-t="startMessage">Enter measurements and press Analyze, or run the 10-day demonstration.</div>
+</section>
+<section class="card">
+  <h2 data-t="manual">Manual readings</h2>
+  <div class="form-grid">
+    <div><label for="moist" data-t="soil">Soil moisture</label><input id="moist" type="number" inputmode="decimal" value="42" min="0" max="100" step="any"></div>
+    <div><label for="greenFraction" data-t="green">RGB green fraction</label><input id="greenFraction" type="number" inputmode="decimal" value="0.30" min="0" max="1" step="any"></div>
+    <div><label for="temperature" data-t="temp">Temperature</label><input id="temperature" type="number" inputmode="decimal" value="25" min="-20" max="65" step="any"></div>
+    <div><label for="humidity" data-t="humidity">Air humidity</label><input id="humidity" type="number" inputmode="decimal" value="46" min="0" max="100" step="any"></div>
+    <div><label for="variInput">VARI (−1 to +1)</label><input id="variInput" type="number" inputmode="decimal" value="0.30" min="-1" max="1" step="any"></div>
+  </div>
+  <p class="hint" data-t="greenHelp">Important: enter 0.30, not 30, for a green fraction of 30%. VARI and green fraction are different measurements.</p>
+  <div class="btns"><button id="analyzeBtn" type="button" data-t="analyze">Analyze measurements</button><button id="demoBtn" type="button" class="secondary" data-t="demo">Load demo sample</button></div><p id="error" class="error" role="alert"></p>
+</section>
+<section class="card">
+  <div class="card-head"><h2 data-t="simulation">10-day demonstration</h2><span id="simDay">Day — / 10</span></div>
+  <p class="caption" data-t="simDesc">Replays the original illustrative 10-day trend. It is synthetic, not readings from real sensors.</p>
+  <div class="btns"><button id="simStart" type="button" data-t="runDemo">Start simulation</button><button id="simNext" class="secondary" type="button" data-t="nextDay">Next day</button><button id="simReset" class="secondary" type="button" data-t="resetDemo">Reset simulation</button></div>
+</section>
+<div class="chart-flex">
+  <section class="card chart-card"><h3 data-t="sensorChart">Sensor history: soil moisture, temperature and VARI</h3><p class="caption" data-t="sensorDesc">Temperature in °C; VARI shown ×100 for comparison.</p><canvas class="plot" id="sensorCanvas" aria-label="Sensor trend chart"></canvas><div class="legend"><span><i class="dot" style="background:#247448"></i><span data-t="soil">Soil moisture</span> (%)</span><span><i class="dot" style="background:#bd733a"></i><span data-t="temp">Temperature</span> (°C)</span><span><i class="dot" style="background:#3665ab"></i>VARI × 100</span></div></section>
+  <section class="card chart-card"><h3 data-t="stressChart">Water-stress progression</h3><p class="caption" data-t="stressDesc">Classification changes during simulation or recorded readings.</p><canvas class="plot" id="stressCanvas" aria-label="Water stress progression chart"></canvas><div class="legend"><span><i class="dot" style="background:#704ead"></i><span data-t="stressLegend">Stress class: 0 normal → 3 severe</span></span></div></section>
+</div>
+<section class="card"><h3 data-t="scatterChart">Moisture vs RGB green fraction</h3><p class="caption" data-t="scatterDesc">Each point represents a saved measurement or demonstration day. Sample and real readings use different markers.</p><canvas id="scatterCanvas" class="plot" aria-label="Moisture versus green fraction scatter plot"></canvas><div class="legend"><span><i class="dot" style="background:#217b4b"></i><span data-t="realLegend">Recorded readings</span></span><span><i class="dot" style="background:#bd7938"></i><span data-t="demoLegend">Simulation</span></span></div></section>
+<section class="card"><h2 data-t="rgbTitle">RGB crop image analysis</h2><p class="caption" data-t="rgbDesc">Choose a photograph from your phone. The app calculates approximate green fraction, ExG and VARI locally and fills the two image-related fields.</p>
+<input class="file-picker" id="photo" type="file" accept="image/*" aria-label="Crop RGB image"><img id="imagePreview" alt="Uploaded plant preview">
+<div class="image-stats"><div><small>Mean R</small><strong id="rMean">—</strong></div><div><small>Mean G</small><strong id="gMean">—</strong></div><div><small>ExG</small><strong id="exgValue">—</strong></div><div><small>VARI</small><strong id="variValue">—</strong></div></div>
+<p class="hint" data-t="rgbCaution">RGB indices are sensitive to lighting, shadows and soil/background. A photograph alone cannot validate water stress.</p><p id="photoState" class="caption" role="status"></p></section>
+<section class="card"><div class="card-head"><h2 data-t="records">Saved readings</h2><span id="countBadge" class="caption">0</span></div><div class="btns"><button id="csvBtn" type="button" data-t="csv">Export CSV</button><button id="clearBtn" class="secondary" type="button" data-t="clear">Clear saved readings</button><button id="gpsBtn" class="secondary" type="button" data-t="gps">Capture GPS</button></div><p id="gpsState" class="caption"></p>
+<div class="table-wrap"><table><thead><tr><th data-t="time">Time</th><th data-t="source">Source</th><th data-t="soil">Soil moisture</th><th data-t="green">RGB green fraction</th><th>VARI</th><th data-t="classification">Class</th></tr></thead><tbody id="recordRows"></tbody></table></div><p class="hint" data-t="local">Saved data stay in this browser on this device until cleared.</p></section>
+<section class="card"><h2 data-t="liveTitle">Optional ESP32 connection</h2><p class="caption" data-t="liveDesc">Connect to an HTTPS JSON endpoint containing moisture, green, temperature, humidity and vari fields. Direct http://192.168.x.x connections may be blocked by HTTPS browser security.</p><label for="endpoint">HTTPS / JSON URL</label><input id="endpoint" type="url" placeholder="https://example.org/sensor/data"><div class="btns"><button id="startLive" type="button" data-t="connect">Connect</button><button id="stopLive" class="secondary" type="button" data-t="stop">Stop</button></div><p id="liveState" class="caption" role="status"></p></section>
+<section class="card"><h2 data-t="installTitle">Android installation / updating</h2><p class="caption" data-t="installDesc">Upload all package files to GitHub Pages. When opened over HTTPS in Chrome, install the app through the browser menu. If an older installed version persists, close and reopen it after the new upload.</p><button id="installBtn" class="secondary" type="button" data-t="install">Install app</button><p class="hint" id="buildVersion">Build 2026-10-09-v3</p></section>
+<section class="notice"><strong data-t="scienceTitle">Scientific note:</strong> <span data-t="science">Prototype classification is a transparent rule-based demonstration. The score is indicative, not a trained AI probability or a calibrated irrigation prescription. Use calibrated, crop-specific thresholds before field deployment.</span></section>
+</main>
+<script defer src="./app.js"></script>
+</body></html>
